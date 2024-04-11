@@ -1,6 +1,7 @@
 import { IncomingMessage, ServerResponse } from "http";
 import { database } from "./model";
 import { renderTemplate } from "./view";
+import { stringify } from "querystring";
 
 /**
  * All of these function have a TODO comment. Follow the steps in the
@@ -16,12 +17,18 @@ export const getHome = async (req: IncomingMessage, res: ServerResponse) => {
 
     res.statusCode = 200;
     res.setHeader("Content-Type", "text/html");
+    res.setHeader("Set-Cookie", [
+        "likes=Formula_One",
+        "lovesWebDev=false",
+    ]);
     res.end(
         await renderTemplate("src/views/HomeView.hbs", {
             title: "Welcome",
             cookies: req.headers.cookie?.toString(),
         }),
     );
+    var yes = getCookies(req);
+    console.log(yes);
 };
 
 export const changeLanguage = async (
@@ -120,5 +127,19 @@ const getCookies = (req: IncomingMessage): Record<string, string> => {
      * 3. Return the object.
      */
 
-    return {};
+    //console.log(req.headers.cookie);
+
+    type cookieValues = Record<string, string>;
+    var cookie: cookieValues = {};  
+    var cookies = req.headers.cookie?.split(";")
+    //console.log(cookies);
+    cookies?.forEach(element => {
+        var Pokemon = element.split("=");
+        var pokemonName: string = Pokemon[0];
+        var pokemonValue: string = Pokemon[1];
+        cookie[pokemonName] = pokemonValue
+    });
+    
+
+    return cookie;
 };
